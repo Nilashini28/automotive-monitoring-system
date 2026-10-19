@@ -1,0 +1,214 @@
+# Week-1 deliverable: company + vendor mapping sheet.
+#
+# 5 global commercial-vehicle OEMs, each with 5 Tier-1 supply-chain vendors.
+# `aliases` feed the entity tagger; `segment` states what the vendor supplies.
+# Vendor relationships are curated for the prototype and flagged as "to verify
+# against procurement data" in docs/JUSTIFICATION.md.
+
+oems:
+  - name: Daimler Truck Holding AG
+    short_name: Daimler Truck
+    type: oem
+    country: Germany
+    group: Daimler Truck
+    aliases: [Daimler Truck, Mercedes-Benz Trucks, Freightliner, Detroit Diesel, Setra]
+    notes: Largest global truck and bus manufacturer by revenue.
+
+  - name: AB Volvo
+    short_name: Volvo Group
+    type: oem
+    country: Sweden
+    group: Volvo Group
+    aliases: [Volvo Group, Volvo Trucks, Volvo Buses, Mack Trucks, Renault Trucks, UD Trucks]
+    notes: Separate from Volvo Cars; trucks, buses, construction, drive components.
+
+  - name: TRATON SE
+    short_name: TRATON
+    type: oem
+    country: Germany
+    group: TRATON
+    aliases: [TRATON, Scania, MAN Truck, MAN Heavy Trucks, International Motors, Navistar]
+    notes: Truck and bus group holding Scania, MAN and International (ex-Navistar).
+
+  - name: PACCAR Inc
+    short_name: PACCAR
+    type: oem
+    country: United States
+    group: PACCAR
+    aliases: [PACCAR, Paccar, Kenworth, Peterbilt, DAF Trucks, Paccar MX]
+    notes: Kenworth, Peterbilt and DAF medium/heavy trucks plus Paccar powertrain.
+
+  - name: Ford Motor Company Commercial Vehicles
+    short_name: Ford Commercial
+    type: oem
+    country: United States
+    group: Ford
+    aliases: [Ford Commercial, Ford Trucks, Ford Transit, F-650, F-Series commercial, Ocean Vehicle]
+    notes: Ford heavy/medium duty and e-Transit commercial line.
+
+tier1_vendors:
+  - name: Cummins Inc.
+    short_name: Cummins
+    type: tier1
+    country: United States
+    aliases: [Cummins, Cummins Inc, Cummins Turbo Technologies]
+    notes: Diesel and alternative-power engines, fuel systems, aftertreatment.
+
+  - name: ZF Friedrichshafen AG
+    short_name: ZF
+    type: tier1
+    country: Germany
+    aliases: [ZF Friedrichshafen, ZF, WABCO, ZF Passau]
+    notes: Transmissions, axles, braking and ADAS (owns WABCO braking/ECAS).
+
+  - name: Robert Bosch GmbH
+    short_name: Bosch
+    type: tier1
+    country: Germany
+    aliases: [Bosch, Robert Bosch]
+    notes: Injection, braking, steering, electrification and diagnostics components.
+
+  - name: Continental AG
+    short_name: Continental
+    type: tier1
+    country: Germany
+    aliases: [Continental, Conti, Vitesco Technologies]
+    notes: Air systems, brakes, cockpits and commercial-vehicle tyres.
+
+  - name: Knorr-Bremse AG
+    short_name: Knorr-Bremse
+    type: tier1
+    country: Germany
+    aliases: [Knorr-Bremse, Knorr Bremse]
+    notes: Air brake and braking-system specialist for trucks and trailers.
+
+  - name: Denso Corporation
+    short_name: Denso
+    type: tier1
+    country: Japan
+    aliases: [Denso, Denso Corporation]
+    notes: Thermal systems, sensors and electronic control units.
+
+  - name: Valeo
+    short_name: Valeo
+    type: tier1
+    country: France
+    aliases: [Valeo]
+    notes: Clutch, thermal, lighting and driver-assistance systems.
+
+  - name: Schaeffler AG
+    short_name: Schaeffler
+    type: tier1
+    country: Germany
+    aliases: [Schaeffler, LuK, FAG]
+    notes: Bearings, clutch systems, engine components.
+
+  - name: FORVIA SE
+    short_name: FORVIA
+    type: tier1
+    country: France
+    aliases: [FORVIA, Hella, Faurecia]
+    notes: Lighting, electronics, interiors and clean mobility.
+
+  - name: Aisin Corporation
+    short_name: Aisin
+    type: tier1
+    country: Japan
+    aliases: [Aisin, Aisin Corporation, Aisin AW]
+    notes: Automatic transmissions, pump and drivetrain components.
+
+  - name: BorgWarner
+    short_name: BorgWarner
+    type: tier1
+    country: United States
+    aliases: [BorgWarner]
+    notes: Turbochargers, drivetrain and e-mobility modules.
+
+  - name: Eaton Corporation
+    short_name: Eaton
+    type: tier1
+    country: Ireland
+    aliases: [Eaton, Eaton Vehicle]
+    notes: Transmissions, clutches, brakes and hydraulics for medium/heavy duty.
+
+# oem -> five Tier-1 vendors each (Week-1 supply-chain mapping)
+supply_links:
+  - oem: Daimler Truck Holding AG
+    vendor: ZF Friedrichshafen AG
+    segment: Transmission, axles, ADAS braking
+  - oem: Daimler Truck Holding AG
+    vendor: Robert Bosch GmbH
+    segment: Injection, steering, electronics
+  - oem: Daimler Truck Holding AG
+    vendor: Continental AG
+    segment: Air systems, cockpit electronics, tyres
+  - oem: Daimler Truck Holding AG
+    vendor: Knorr-Bremse AG
+    segment: Air brake processing units
+  - oem: Daimler Truck Holding AG
+    vendor: Schaeffler AG
+    segment: Engine components, bearings
+
+  - oem: AB Volvo
+    vendor: Cummins Inc.
+    segment: Engines through the Volvo/Cummins JV
+  - oem: AB Volvo
+    vendor: ZF Friedrichshafen AG
+    segment: Transmissions, steering
+  - oem: AB Volvo
+    vendor: Denso Corporation
+    segment: Thermal and electronic controls
+  - oem: AB Volvo
+    vendor: Knorr-Bremse AG
+    segment: Braking and air management
+  - oem: AB Volvo
+    vendor: BorgWarner
+    segment: Turbochargers, drivetrain
+
+  - oem: TRATON SE
+    vendor: Continental AG
+    segment: Braking, sensors, tyres
+  - oem: TRATON SE
+    vendor: Robert Bosch GmbH
+    segment: Fuel injection, aftertreatment
+  - oem: TRATON SE
+    vendor: Knorr-Bremse AG
+    segment: Trailer and truck braking systems
+  - oem: TRATON SE
+    vendor: Valeo
+    segment: Clutch, lighting, thermal
+  - oem: TRATON SE
+    vendor: FORVIA SE
+    segment: Lighting, interiors, electronics
+
+  - oem: PACCAR Inc
+    vendor: Cummins Inc.
+    segment: Engines for North American heavy duty
+  - oem: PACCAR Inc
+    vendor: Eaton Corporation
+    segment: Transmissions, clutches
+  - oem: PACCAR Inc
+    vendor: ZF Friedrichshafen AG
+    segment: Axle and driveline components
+  - oem: PACCAR Inc
+    vendor: FORVIA SE
+    segment: Lighting and electronics
+  - oem: PACCAR Inc
+    vendor: Denso Corporation
+    segment: Sensors, thermal systems
+
+  - oem: Ford Motor Company Commercial Vehicles
+    vendor: Cummins Inc.
+    segment: Diesel engines for F-Series medium duty
+  - oem: Ford Motor Company Commercial Vehicles
+    vendor: Aisin Corporation
+    segment: Automatic transmissions
+  - oem: Ford Motor Company Commercial Vehicles
+    vendor: Continental AG
+    segment: Brake and driver-assistance systems
+  - oem: Ford Motor Company Commercial Vehicles
+    vendor: BorgWarner
+    segment: Turbochargers, e-drive modules
+  - oem: Ford Motor Company Commercial Vehicles
+    vendor: Schaeffler AG
+    segment: Clutch and engine components

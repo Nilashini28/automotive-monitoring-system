@@ -1,0 +1,88 @@
+# Week-1 deliverable: source catalogue.
+#
+# `company_news_template` is instantiated once per company by the seeder, so the
+# catalogue scales with data/companies.yaml instead of duplicating URLs.
+# Google News RSS is used as the free, deployment-safe news source: NewsAPI's
+# free tier is licensed for development only and breaks a deployed app.
+
+company_news_template: "https://news.google.com/rss/search?q={query}&hl=en&gl=US&ceid=US:en"
+company_query_template: '"{match}" (truck OR bus OR "commercial vehicle")'
+
+extra_sources:
+  # Industry-wide signals not tied to one company.
+  - name: Industry - supply chain and semiconductors
+    kind: rss
+    parser: google_news
+    query: '"commercial vehicle" (supplier OR "supply chain" OR semiconductor)'
+  - name: Industry - emissions and regulation
+    kind: rss
+    parser: google_news
+    query: 'truck (emissions OR Euro VII OR CO2 standard OR regulation)'
+  - name: Industry - investment and plants
+    kind: rss
+    parser: google_news
+    query: 'truck plant (investment OR "new factory" OR expansion OR shutdown) billion'
+  - name: Industry - recall and safety
+    kind: rss
+    parser: google_news
+    query: 'truck (recall OR NHTSA OR defect OR "stop sale")'
+
+  # Regulatory filings for the USD-listed members of the watchlist. `cik` from
+  # https://www.sec.gov/files/company_tickers.json - full-text search alone
+  # matches any document that *mentions* the name, which returned Clorox and
+  # floorplan-trust filings under a "Ford" source.
+  - name: SEC EDGAR - PACCAR
+    company: PACCAR Inc
+    kind: regulator
+    parser: sec_edgar
+    cik: "0000075362"
+    query: '"PACCAR"'
+  - name: SEC EDGAR - Ford
+    company: Ford Motor Company Commercial Vehicles
+    kind: regulator
+    parser: sec_edgar
+    cik: "0000037996"
+    query: '"Ford Motor Company"'
+  - name: SEC EDGAR - Cummins
+    company: Cummins Inc.
+    kind: regulator
+    parser: sec_edgar
+    cik: "0000026172"
+    query: '"Cummins Inc"'
+  - name: SEC EDGAR - Eaton
+    company: Eaton Corporation
+    kind: regulator
+    parser: sec_edgar
+    cik: "0001551182"
+    query: '"Eaton Corporation"'
+  - name: SEC EDGAR - BorgWarner
+    company: BorgWarner
+    kind: regulator
+    parser: sec_edgar
+    cik: "0000908255"
+    query: '"BorgWarner"'
+
+# Direct company newsrooms, kept disabled on evidence:
+#   python -m signals.tools.probe_sources --press-pages
+# Probed 2026-10-19 - daimlertruck.com and volvogroup.com render their release
+# list with JavaScript (the static HTML only exposes navigation anchors, so the
+# parser yields 0 items) and press.zf.com answers 403 to a non-browser client.
+# Their releases are still covered through the Google News RSS rows above, which
+# index the same wires; enabling a newsroom here needs a JSON/media endpoint or a
+# rendered fetcher, not a CSS tweak.
+press_pages:
+  - name: Daimler Truck newsroom
+    company: Daimler Truck Holding AG
+    url: https://www.daimlertruck.com/en/newsroom
+    item_selector: "article a, .newsroom-list a"
+    enabled: false
+  - name: Volvo Group media news
+    company: AB Volvo
+    url: https://www.volvogroup.com/media.html
+    item_selector: "news-item a, .news-list a"
+    enabled: false
+  - name: ZF press releases
+    company: ZF Friedrichshafen AG
+    url: https://press.zf.com/press/en/releases.html
+    item_selector: ".release-list a, article a"
+    enabled: false
