@@ -1,0 +1,36 @@
+# --- data layer ---
+SQLAlchemy>=2.0.30
+alembic>=1.13
+psycopg[binary]>=3.2        # Postgres driver (production / docker)
+
+# --- config, logging ---
+pydantic>=2.7
+pydantic-settings>=2.3
+python-dotenv>=1.0
+PyYAML>=6.0
+
+# --- ingestion ---
+httpx>=0.27
+feedparser>=6.0.11
+beautifulsoup4>=4.12
+lxml>=5.2
+tenacity>=8.3
+
+# --- structuring / classification ---
+numpy>=1.26
+pandas>=2.2
+
+# --- API ---
+fastapi>=0.115
+uvicorn[standard]>=0.30
+
+# --- dashboard ---
+streamlit>=1.38
+plotly>=5.22
+
+# --- scheduling ---
+APScheduler>=3.10
+
+# --- tests ---
+pytest>=8.2
+respx>=0.21

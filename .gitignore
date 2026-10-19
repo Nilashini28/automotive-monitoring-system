@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+var/*
+!var/signals.db
+*.sqlite3
+*.db-wal
+*.db-shm
+*.db-journal
+.env
+.pytest_cache/
+.mypy_cache/
+dist/
+build/
+*.egg-info/
+.streamlit/secrets.toml
