@@ -1,0 +1,14 @@
+# Build context only needs source + data + migrations.
+.venv/
+var/
+.pytest_cache/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+docker-compose.yml
+Dockerfile
+.dockerignore
+data/validation_template.json
+tests/__pycache__/

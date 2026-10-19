@@ -1,0 +1,107 @@
+# Automotive Signals - local/production stack.
+#
+#   cp .env.example .env && docker compose up --build
+#   -> API http://localhost:8000/docs, dashboard http://localhost:8501
+#
+# Only the `api` service migrates and seeds; the others wait for it to be
+# healthy so two containers never race on the schema. `.env` in this directory
+# is picked up automatically for the ${VARS} below.
+name: automotive-signals
+
+x-app: &app
+  build: .
+  image: automotive-signals:latest
+  environment: &app-env
+    # `host` works because Postgres runs in this compose project; override
+    # DATABASE_URL in .env for a managed instance.
+    DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://signals:signals@db:5432/signals}
+    LLM_PROVIDER: ${LLM_PROVIDER:-rules}
+    LLM_BASE_URL: ${LLM_BASE_URL:-}
+    LLM_API_KEY: ${LLM_API_KEY:-}
+    LLM_MODEL: ${LLM_MODEL:-}
+    CLASSIFY_PROMPT_VERSION: ${CLASSIFY_PROMPT_VERSION:-v1}
+    INGEST_MAX_ARTICLES_PER_SOURCE: ${INGEST_MAX_ARTICLES_PER_SOURCE:-40}
+    CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8501}
+    API_TOKEN: ${API_TOKEN:-}
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: signals
+      POSTGRES_PASSWORD: signals
+      POSTGRES_DB: signals
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signals -d signals"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  api:
+    <<: *app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["uvicorn", "signals.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/healthz', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+
+  web:
+    <<: *app
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      # The dashboard is a pure HTTP client - it never touches the database.
+      API_URL: http://api:8000
+      MIGRATE_ON_START: "0"
+      SEED_ON_START: "0"
+    command:
+      [
+        "streamlit", "run", "src/signals/web/app.py",
+        "--server.port=8501", "--server.address=0.0.0.0",
+        "--server.headless=true", "--browser.gatherUsageStats=false",
+      ]
+    ports:
+      - "${WEB_PORT:-8501}:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      start_period: 25s
+      retries: 5
+
+  worker:
+    <<: *app
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      MIGRATE_ON_START: "0"
+      SEED_ON_START: "0"
+      INGEST_INTERVAL_MINUTES: ${INGEST_INTERVAL_MINUTES:-60}
+      CLASSIFY_INTERVAL_MINUTES: ${CLASSIFY_INTERVAL_MINUTES:-15}
+    command: ["python", "-m", "signals.worker"]
+    # No HTTP endpoint of its own. Liveness is the run ledger: `curl :8000/runs`
+    # must show an `ingest` row newer than INGEST_INTERVAL_MINUTES.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import signals.worker"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+
+volumes:
+  pgdata:
