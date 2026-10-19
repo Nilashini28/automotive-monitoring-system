@@ -1,0 +1,6 @@
+# The app runs in a Linux container and on Windows laptops; text files stay LF so
+# a checkout never rewrites the shell entrypoint or the Python sources.
+* text=auto eol=lf
+*.png binary
+*.db binary
+*.ico binary
